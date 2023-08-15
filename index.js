@@ -1,39 +1,6 @@
 const puppeteer = require("puppeteer");
 const path = require("path");
 
-const Pdf_Gen = async (url) => {
-  try {
-    const browser = await puppeteer.launch({
-      headless: "new",
-      executablePath:
-        process.env.NODE_ENV === "production"
-          ? process.env.PUPPETEER_EXECUTABLE_PATH
-          : puppeteer.executablePath(),
-    });
-    const page = await browser.newPage();
-    const loaddata = await page.goto(url, {
-      waitUntil: "networkidle2",
-    });
-    const namefile = `file.pdf`;
-    await page.setViewport({ width: 2480, height: 3508 });
-
-    const pdfn = await page.pdf({
-      path: `${path.join(__dirname, "./pdf/") + namefile}`,
-      format: "A4",
-    });
-
-    await browser.close();
-
-    console.log(
-      "🚀 ~ file: GenaratePDF.js:24 ~ constPdf_Gen= ~ namefile:",
-      namefile
-    );
-    return namefile;
-  } catch (error) {
-    console.log("🚀 ~ file: Pdf_gen.js:23 ~ constPdf_Gen= ~ error:", error);
-    throw error;
-  }
-};
 
 const express = require("express");
 const app = express();
@@ -47,13 +14,31 @@ app.get("/gen", async (req, res) => {
   // console.log("🚀 ~ file: index.js:41 ~ app.post ~ url:", req.body)
 
   try {
-    const link = await Pdf_Gen(
-      "https://tictac-nahid.netlify.app/"
-    );
-    let pathsoffile = `${path.join(__dirname, "./pdf/") + link}`;
+    
+        // genarate pdf 
+        const browser = await puppeteer.launch({
+            headless: "new",
+            executablePath:
+              process.env.NODE_ENV === "production"
+                ? process.env.PUPPETEER_EXECUTABLE_PATH
+                : puppeteer.executablePath(),
+          });
 
-    res.sendFile(pathsoffile);
-    // res.send('hello')
+          const page = await browser.newPage();
+
+          const loaddata = await page.goto("https://tictac-nahid.netlify.app/", {
+            waitUntil: "networkidle2",
+          });
+
+          await page.setViewport({ width: 2480, height: 3508 });
+
+          const pdfBuffer = await page.pdf({ format: 'A4' });
+
+          await browser.close();
+          res.contentType('application/pdf');
+          res.send(pdfBuffer);
+          
+
   } catch (error) {
     console.log("🚀 ~ file: index.js:42 ~ app.get ~ error:", error);
     res.send("eror");
