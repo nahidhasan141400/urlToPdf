@@ -1,17 +1,21 @@
+const express = require("express");
+const app = express();
 const puppeteer = require("puppeteer");
 const path = require("path");
 
 
-const express = require("express");
-const app = express();
 
 var bodyParser = require("body-parser");
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(express.json());
 
-app.get("/gen", async (req, res) => {
-  // const {url} = req.body;
-  // console.log("🚀 ~ file: index.js:41 ~ app.post ~ url:", req.body)
+app.post("/gen", async (req, res) => {
+  const {url} = req.body;
+
+  if(!url){
+    return res.status(404).send('no url pass')
+  }
 
   try {
     
@@ -26,7 +30,7 @@ app.get("/gen", async (req, res) => {
 
           const page = await browser.newPage();
 
-          const loaddata = await page.goto("https://tictac-nahid.netlify.app/", {
+          const loaddata = await page.goto(url, {
             waitUntil: "networkidle2",
           });
 
