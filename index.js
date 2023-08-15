@@ -4,7 +4,11 @@ const path = require('path');
 const Pdf_Gen = async (url)=>{
     try {
         const browser = await puppeteer.launch({
-            headless:"new"
+            headless:"new",
+            executablePath:
+      process.env.NODE_ENV === "production"
+        ? process.env.PUPPETEER_EXECUTABLE_PATH
+        : puppeteer.executablePath(),
         });
         const page = await browser.newPage();
         const loaddata = await page.goto(url,{
