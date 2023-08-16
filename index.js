@@ -30,11 +30,15 @@ app.post("/gen", async (req, res) => {
           });
 
           const page = await browser.newPage();
-
           const loaddata = await page.goto(url, {
-            waitUntil: "networkidle2",
+            waitUntil: "load",
+            timeout: 0
           });
+          const statusCode = loaddata.status()
 
+          if (statusCode === 404) {
+            return res.status(404).send('no page load in this url')
+          }
           await page.setViewport({ width: 2480, height: 3508 });
 
           const pdfBuffer = await page.pdf({ format: 'A4' });
@@ -46,7 +50,7 @@ app.post("/gen", async (req, res) => {
 
   } catch (error) {
     console.log("🚀 ~ file: index.js:42 ~ app.get ~ error:", error);
-    res.send("eror");
+    res.status(500).send("eror");
   }
 });
 app.get("/test", async (req, res) => {
@@ -91,7 +95,7 @@ app.get("/test", async (req, res) => {
 
   } catch (error) {
     console.log("🚀 ~ file: index.js:42 ~ app.get ~ error:", error);
-    res.send("eror");
+    res.status(500).send("eror");
   }
 });
 
