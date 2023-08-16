@@ -71,8 +71,14 @@ app.get("/test", async (req, res) => {
           const page = await browser.newPage();
 
           const loaddata = await page.goto(url, {
-            waitUntil: "networkidle2",
+            waitUntil: "load",
+            timeout: 0
           });
+          const statusCode = loaddata.status()
+
+          if (statusCode === 404) {
+            return res.status(404).send('no page load in this url')
+          }
 
           await page.setViewport({ width: 2480, height: 3508 });
 
